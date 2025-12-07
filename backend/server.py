@@ -32,9 +32,15 @@ def file_hash(raw_bytes: bytes):
     return hashlib.md5(raw_bytes).hexdigest()
 
 
-@app.get("/")
+
+
+@app.get("/", include_in_schema=False)
 def home():
     return {"status": "Backend running"}
+
+@app.head("/", include_in_schema=False)
+def home_head():
+    return {}
 
 
 # ============================================================
@@ -161,7 +167,7 @@ async def query_api(data: QueryRequest):
         print("❌ Query error:", e)
         return JSONResponse(status_code=500, content={"error": str(e)})
 
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Render assigns dynamic port
+    uvicorn.run(app, host="0.0.0.0", port=port)
