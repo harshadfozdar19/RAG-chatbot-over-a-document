@@ -2,7 +2,6 @@ fastapi
 uvicorn[standard]
 python-multipart
 pypdf
-sentence-transformers
 pinecone>=4.0.0
 python-dotenv
 google-generativeai
