@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 
-load_dotenv(".env")
+load_dotenv()
 
 from ingest import extract_text_from_bytes, ingest_file_chunks
 from embeddings import get_embeddings
@@ -64,7 +64,7 @@ async def upload(files: list[UploadFile] = File(...)):
 
             # Check if file was already uploaded
             check = index.query(
-                vector=[0] * 384,
+                vector=[0] * 768,
                 filter={"file_id": {"$eq": f_hash}},
                 top_k=1,
                 include_metadata=True
