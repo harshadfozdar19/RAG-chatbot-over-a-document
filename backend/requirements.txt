@@ -3,7 +3,7 @@ uvicorn[standard]
 python-multipart
 pypdf
 sentence-transformers
-pinecone-client
+pinecone>=4.0.0
 python-dotenv
 google-generativeai
 transformers
