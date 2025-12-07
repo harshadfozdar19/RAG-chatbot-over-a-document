@@ -58,10 +58,10 @@ export default function Upload({ onIndexed }) {
         `Uploaded ${data.files_processed} files. Indexed ${data.chunks_indexed} chunks ✔`
       );
 
-      onIndexed();
     } catch (err) {
       setMessage("Error: " + err.message);
     } finally {
+      onIndexed();
       setLoading(false);
     }
   }
