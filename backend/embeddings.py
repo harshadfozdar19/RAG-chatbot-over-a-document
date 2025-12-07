@@ -1,11 +1,30 @@
 # embeddings.py
-from sentence_transformers import SentenceTransformer
+import os
+import google.generativeai as genai
 
-# FREE embedding model — 384 dimensions
-embed_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-def get_embedding(text: str):
-    return embed_model.encode(text).tolist()
+# Initialize Gemini API once
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 
 def get_embeddings(texts):
-    return embed_model.encode(texts).tolist()
+    """
+    Generates embeddings using the new Gemini embedding API.
+    Works for both single-string and list-of-strings.
+    """
+
+    model = "models/text-embedding-004"
+
+    # Single text → wrap into list
+    if isinstance(texts, str):
+        texts = [texts]
+
+    embeddings = []
+    for t in texts:
+        response = genai.embed_content(
+            model=model,
+            content=t
+        )
+        embeddings.append(response["embedding"])
+
+    return embeddings
