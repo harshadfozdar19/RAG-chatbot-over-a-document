@@ -5,6 +5,9 @@ export default function Upload({ onIndexed }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
+
   // ⭐ Append new files (no overwrite)
   function addFiles(newFiles) {
     setFiles((prev) => {
@@ -43,7 +46,7 @@ export default function Upload({ onIndexed }) {
     files.forEach((file) => fd.append("files", file));
 
     try {
-      const res = await fetch("http://localhost:5000/api/upload", {
+      const res = await fetch(`${API_URL}/api/upload`, {
         method: "POST",
         body: fd,
       });

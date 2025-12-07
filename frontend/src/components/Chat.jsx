@@ -5,6 +5,9 @@ export default function Chat({ enabled }) {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
+  
+  // ✅ Load API URL from env file
+const API_URL = import.meta.env.VITE_API_URL;
 
   async function ask(e) {
     e.preventDefault();
@@ -15,7 +18,7 @@ export default function Chat({ enabled }) {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/query", {
+      const res = await fetch(`${API_URL}/api/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
