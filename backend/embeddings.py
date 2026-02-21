@@ -1,7 +1,7 @@
 # embeddings.py
 import os
-import google.generativeai as genai
-
+# import google.generativeai as genai
+from google import genai
 
 # Initialize Gemini API once
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
