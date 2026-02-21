@@ -4,5 +4,5 @@ python-multipart
 pypdf
 pinecone>=4.0.0
 python-dotenv
-google-generativeai
+google-genai
 transformers
