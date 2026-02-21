@@ -1,30 +1,27 @@
 # embeddings.py
 import os
-# import google.generativeai as genai
 from google import genai
 
-# Initialize Gemini API once
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Create Gemini client (NEW SDK way)
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def get_embeddings(texts):
     """
-    Generates embeddings using the new Gemini embedding API.
-    Works for both single-string and list-of-strings.
+    Generates embeddings using Gemini embedding model.
+    Works for both single string and list of strings.
     """
 
     model = "models/embedding-001"
 
-    # Single text → wrap into list
+    # Convert single string to list
     if isinstance(texts, str):
         texts = [texts]
 
-    embeddings = []
-    for t in texts:
-        response = genai.embed_content(
-            model=model,
-            content=t
-        )
-        embeddings.append(response["embedding"])
+    response = client.models.embed_content(
+        model=model,
+        contents=texts
+    )
 
-    return embeddings
+    # Extract embedding vectors
+    return [embedding.values for embedding in response.embeddings]
