@@ -13,7 +13,7 @@ def get_embeddings(texts):
     Works for both single-string and list-of-strings.
     """
 
-    model = "models/text-embedding-004"
+    model = "models/text-embedding-001"
 
     # Single text → wrap into list
     if isinstance(texts, str):
