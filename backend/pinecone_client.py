@@ -1,32 +1,21 @@
 # pinecone_client.py
 import os
-from pinecone import ServerlessSpec
+from pinecone import Pinecone, ServerlessSpec
+
+from embeddings import get_embedding_dimension
 
 _pc = None
 _index = None
 
 
 def get_pinecone_client():
-    """
-    Lazy-load Pinecone client so it doesn't
-    occupy memory during server startup.
-    """
     global _pc
     if _pc is None:
-        from pinecone import Pinecone   # lazy import
-        api_key = os.getenv("PINECONE_API_KEY")
-        if not api_key:
-            raise ValueError("PINECONE_API_KEY missing!")
-        _pc = Pinecone(api_key=api_key)
-
+        _pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
     return _pc
 
 
 def get_or_create_index():
-    """
-    Lazily create + return index.
-    No auto delete to avoid Render memory spike.
-    """
     global _index
 
     if _index is not None:
@@ -34,17 +23,26 @@ def get_or_create_index():
 
     pc = get_pinecone_client()
 
-    index_name = os.getenv("PINECONE_INDEX", "rag-index")
+    index_name = os.getenv("PINECONE_INDEX", "rag-index-gemini")
     cloud = os.getenv("PINECONE_CLOUD", "aws")
     region = os.getenv("PINECONE_REGION", "us-east-1")
+    embedding_dimension = get_embedding_dimension()
 
     if index_name not in pc.list_indexes().names():
         pc.create_index(
             name=index_name,
-            dimension=768,
+            dimension=embedding_dimension,
             metric="cosine",
             spec=ServerlessSpec(cloud=cloud, region=region),
         )
+    else:
+        index_info = pc.describe_index(name=index_name)
+        if index_info.dimension != embedding_dimension:
+            raise RuntimeError(
+                f"Pinecone index '{index_name}' has dimension {index_info.dimension}, "
+                f"but the configured embedding provider requires {embedding_dimension}. "
+                "Use a matching EMBEDDING_PROVIDER/EMBEDDING_DIMENSION pair or a different PINECONE_INDEX."
+            )
 
     _index = pc.Index(index_name)
     return _index

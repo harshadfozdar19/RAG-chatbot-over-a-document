@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from ingest import extract_text_from_bytes, ingest_file_chunks
-from embeddings import get_embeddings
+from embeddings import get_embedding_dimension, get_embeddings
 from pinecone_client import get_or_create_index
 from models import QueryRequest
 
@@ -43,6 +43,22 @@ def home_head():
     return {}
 
 
+@app.get("/api/status")
+def api_status():
+    try:
+        index = get_or_create_index()
+        stats = index.describe_index_stats()
+        vector_count = getattr(stats, "total_vector_count", 0)
+        return {
+            "status": "ok",
+            "documents_indexed": vector_count > 0,
+            "vector_count": vector_count,
+        }
+    except Exception as e:
+        print("❌ Status error:", e)
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 # ============================================================
 #                      MULTI-FILE UPLOAD
 # ============================================================
@@ -64,7 +80,7 @@ async def upload(files: list[UploadFile] = File(...)):
 
             # Check if file was already uploaded
             check = index.query(
-                vector=[0] * 768,
+                vector=[0] * get_embedding_dimension(),
                 filter={"file_id": {"$eq": f_hash}},
                 top_k=1,
                 include_metadata=True
@@ -142,7 +158,7 @@ async def query_api(data: QueryRequest):
 
         result = index.query(
             vector=q_emb,
-            top_k=40,
+            top_k=8,
             include_metadata=True,
         )
 
